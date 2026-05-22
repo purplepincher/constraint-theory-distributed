@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "constraint-theory-core"
+version = "0.1.0"
+description = "Unified geometric constraint theory — Eisenstein lattices, deadband funnels, Laman rigidity, holonomy consensus"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    {name = "Forgemaster", email = "forgemaster@superinstance.ai"},
+]
+keywords = ["constraint-theory", "eisenstein", "laman", "rigidity", "deadband", "holonomy", "distributed-systems"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Mathematics",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0", "hypothesis>=6.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
