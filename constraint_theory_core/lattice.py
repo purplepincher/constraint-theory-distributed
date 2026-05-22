@@ -126,12 +126,26 @@ def snap(x: float, y: float) -> Tuple[A2Point, float]:
     -----
     Error is guaranteed to be ≤ ρ = 1/√3 ≈ 0.577 by the covering property.
 
+    The origin snap(0, 0) returns (A2Point(0, 0), 0.0) — zero error by
+    definition, since the origin is itself a lattice point.
+
     Examples
     --------
     >>> pt, err = snap(0.5, 0.3)
     >>> err <= 1.0 / math.sqrt(3)
     True
     """
+    # Input validation
+    for name, val in (("x", x), ("y", y)):
+        if not isinstance(val, (int, float)):
+            raise TypeError(
+                f"snap() argument '{name}' must be a number, got {type(val).__name__}"
+            )
+        if isinstance(val, float) and (math.isnan(val) or math.isinf(val)):
+            raise ValueError(
+                f"snap() argument '{name}' must be finite, got {val}"
+            )
+
     # Convert Cartesian to lattice coordinates
     # z = x + iy = a + bω = a + b(-1/2 + i√3/2)
     # x = a - b/2,  y = b√3/2
@@ -280,7 +294,13 @@ def holonomy_product(directions: List[int]) -> int:
     -------
     int
         Holonomy (sum mod 48). 0 means consistent.
+
+    Notes
+    -----
+    An empty list returns 0 — a trivial (empty) cycle has no holonomy.
     """
+    if not directions:
+        return 0
     return sum(directions) % DIRECTION_COUNT
 
 
@@ -296,6 +316,10 @@ def is_consistent(directions: List[int]) -> bool:
     -------
     bool
         True if holonomy is zero (cycle is consistent).
+
+    Notes
+    -----
+    An empty list returns True — an empty cycle is trivially consistent.
     """
     return holonomy_product(directions) == 0
 

@@ -53,7 +53,7 @@ def is_laman(n_vertices: int, edges: List[Tuple[int, int]]) -> bool:
     Parameters
     ----------
     n_vertices : int
-        Number of vertices (must be ≥ 2).
+        Number of vertices (must be ≥ 0).
     edges : List[Tuple[int, int]]
         List of edges as (i, j) pairs.
 
@@ -62,11 +62,28 @@ def is_laman(n_vertices: int, edges: List[Tuple[int, int]]) -> bool:
     bool
         True if the graph is Laman rigid.
 
+    Raises
+    ------
+    TypeError
+        If edges is not a list or contains non-tuple elements.
+    ValueError
+        If n_vertices is negative.
+
     Notes
     -----
     For n ≥ 2, the edge count must be exactly 2n - 3.
     The subset condition is checked via the pebble game algorithm.
     """
+    if not isinstance(n_vertices, int) or n_vertices < 0:
+        raise ValueError(
+            f"n_vertices must be a non-negative integer, got {n_vertices!r}"
+        )
+    if not isinstance(edges, list):
+        raise TypeError(f"edges must be a list, got {type(edges).__name__}")
+    for i, e in enumerate(edges):
+        if not isinstance(e, (tuple, list)) or len(e) != 2:
+            raise TypeError(f"edges[{i}] must be a 2-tuple, got {e!r}")
+
     if n_vertices < 2:
         return len(edges) == 0
 

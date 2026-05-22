@@ -109,6 +109,26 @@ class TemporalAgent:
         epsilon_0: float = COVERING_RADIUS,
         delta: float = COVERING_RADIUS,
     ) -> None:
+        # Validate decay_rate
+        if not isinstance(decay_rate, (int, float)):
+            raise TypeError(
+                f"decay_rate must be a number, got {type(decay_rate).__name__}"
+            )
+        if isinstance(decay_rate, float) and (math.isnan(decay_rate) or math.isinf(decay_rate)):
+            raise ValueError(f"decay_rate must be finite, got {decay_rate}")
+        if decay_rate < 0:
+            raise ValueError(f"decay_rate must be non-negative, got {decay_rate}")
+
+        # Validate epsilon_0
+        if not isinstance(epsilon_0, (int, float)):
+            raise TypeError(
+                f"epsilon_0 must be a number, got {type(epsilon_0).__name__}"
+            )
+        if isinstance(epsilon_0, float) and (math.isnan(epsilon_0) or math.isinf(epsilon_0)):
+            raise ValueError(f"epsilon_0 must be finite, got {epsilon_0}")
+        if epsilon_0 <= 0:
+            raise ValueError(f"epsilon_0 must be positive, got {epsilon_0}")
+
         self.decay_rate = decay_rate
         self.epsilon_0 = epsilon_0
         self.delta = delta

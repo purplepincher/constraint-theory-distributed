@@ -106,6 +106,14 @@ class Metronome:  # pylint: disable=too-many-instance-attributes
         edges: Optional[List[Tuple[int, int]]] = None,
         n_agents: int = 1,
     ) -> None:
+        # Validate T
+        if not isinstance(T, (int, float)):
+            raise TypeError(f"T must be a number, got {type(T).__name__}")
+        if isinstance(T, float) and (math.isnan(T) or math.isinf(T)):
+            raise ValueError(f"T must be finite, got {T}")
+        if T <= 0:
+            raise ValueError(f"T must be positive, got {T}")
+
         self.T = T  # pylint: disable=invalid-name
         self.phi0 = phi0 % TWO_PI
         self.epsilon = epsilon
