@@ -1,0 +1,4 @@
+# constraint-theory-core
+# No runtime dependencies — pure Python math
+pytest>=7.0
+hypothesis>=6.0

@@ -155,6 +155,8 @@ def algebraic_connectivity(
     For exact results on small graphs, use numpy.linalg.eigvalsh.
     """
     # Build adjacency
+    if n < 2:
+        return 0.0
     adj: Dict[int, List[int]] = {i: [] for i in range(n)}
     for u, v in edges:
         adj[u].append(v)
@@ -226,6 +228,9 @@ def optimal_coupling(
         Optimal coupling α*.
     """
     lam2 = algebraic_connectivity(edges, n)
+
+    if n < 2:
+        return 0.0
 
     # Estimate λₙ (max eigenvalue) ≈ max degree + 1 for Laman graphs
     degree = [0] * n
