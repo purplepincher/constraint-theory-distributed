@@ -3,9 +3,8 @@
 import math
 import pytest
 from constraint_theory_core.lattice import (
-    A2Point, snap, covering_radius, is_safe, norm_sq,
-    decode_dodecet, encode_dodecet, vector48_encode, vector48_decode,
-    holonomy_product, is_consistent, COVERING_RADIUS, SAFE_THRESHOLD,
+    A2Point, snap, covering_radius, is_safe, decode_dodecet, encode_dodecet, vector48_encode, vector48_decode,
+    is_consistent,
 )
 
 

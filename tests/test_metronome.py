@@ -116,7 +116,7 @@ class TestObserve:
     def test_observe_snaps_phase(self):
         m = Metronome(phi0=0.0)
         # (1, 0) in complex plane → phase 0
-        phase = m.observe(1.0, 0.0)
+        m.observe(1.0, 0.0)
         assert m.phase == pytest.approx(0.0, abs=1e-10)
 
     def test_observe_anomaly(self):

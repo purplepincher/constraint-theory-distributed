@@ -22,7 +22,7 @@ from .lattice import (
     A2Point,
     COVERING_RADIUS,
     DIRECTION_COUNT,
-    DODECET_DIRECTIONS,
+    DODECET_DIRECTIONS,  # noqa: F401 — re-exported for external use
     SAFE_THRESHOLD,
     SQRT_3,
     covering_radius,

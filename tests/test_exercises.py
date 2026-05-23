@@ -11,7 +11,6 @@ import pytest
 from constraint_theory_core.exercises import (
     DIFFICULTIES,
     TOPICS,
-    Exercise,
     generate_exercise,
 )
 
