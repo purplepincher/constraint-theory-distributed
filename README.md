@@ -179,7 +179,13 @@ pytest                          # 83 tests
 pytest -v --tb=short            # verbose
 ```
 
-## Related Repos
+## Documentation
+
+- [User Guide](docs/USER-GUIDE.md) — Complete usage documentation
+- [Developer Guide](docs/DEVELOPER-GUIDE.md) — Contributing and internals
+- [Examples](examples/) — Working code examples
+
+## Related Projects
 
 - [flux-tensor-midi](https://github.com/SuperInstance/flux-tensor-midi) — Musical constraint theory
 - [plato](https://github.com/SuperInstance/plato) — PLATO tiling architecture
