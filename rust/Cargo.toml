@@ -1,0 +1,10 @@
+[package]
+name = "constraint-theory-world-music"
+version = "0.1.0"
+edition = "2021"
+description = "World music scales, tuning systems, ornaments, rhythms, cohomology, and Penrose music"
+license = "MIT"
+
+[dependencies]
+
+[dev-dependencies]
