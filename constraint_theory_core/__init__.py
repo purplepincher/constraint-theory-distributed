@@ -62,6 +62,10 @@ from .holonomy import (
     verify_consistency,
 )
 
+from .exercises import (
+    generate_exercise,
+)
+
 __version__ = "0.1.0"
 
 __all__ = [
@@ -78,6 +82,8 @@ __all__ = [
     "Metronome", "MetronomeState",
     # Holonomy
     "cycle_holonomy", "verify_consistency", "isolate_fault", "fault_boundaries",
+    # Exercises
+    "generate_exercise",
     # Meta
     "__version__",
 ]
