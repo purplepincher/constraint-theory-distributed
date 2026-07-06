@@ -55,8 +55,12 @@ The five modules compose into a unified architecture:
 
 ## Installation
 
+Not yet published to PyPI. Install from source:
+
 ```bash
-pip install constraint-theory-core
+git clone https://github.com/purplepincher/constraint-theory-distributed.git
+cd constraint-theory-distributed
+pip install -e .
 ```
 
 Requires Python ≥ 3.10. No external dependencies.
@@ -112,14 +116,18 @@ print(f"λ₂ = {lam2:.4f}, α* = {alpha:.4f}")
 ### Metronome — Distributed Consensus
 
 ```python
-from constraint_theory_core import Metronome
+from constraint_theory_core import Metronome, henneberg_construct
 import math
+
+def neighbors_of(edges, i):
+    """Neighbor indices for vertex i in an undirected edge list."""
+    return [v if u == i else u for u, v in edges if u == i or v == i]
 
 # 9 agents on a Laman graph
 edges = henneberg_construct(9)
 agents = [
     Metronome(T=1.0, phi0=math.pi * i / 9, epsilon=0.5, delta=0.6,
-              neighbors=_get_neighbors(edges, i),
+              neighbors=neighbors_of(edges, i),
               edges=edges, n_agents=9)
     for i in range(9)
 ]
@@ -181,7 +189,7 @@ print(f"All faults: {fault_boundaries(tiles)}")          # [2]
 
 ```bash
 pip install -e ".[dev]"
-pytest                          # 83 tests
+pytest                          # 308 tests (83 core + property/edge-case/benchmark suites)
 pytest -v --tb=short            # verbose
 ```
 

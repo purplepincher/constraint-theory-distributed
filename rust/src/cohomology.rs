@@ -23,7 +23,11 @@ pub struct CohomologyResult {
 pub fn musical_cohomology(chords: &[i32], transitions: &[i32]) -> CohomologyResult {
     let n = chords.len();
     if n == 0 {
-        return CohomologyResult { h0: 0, h1: 0, emergence_detected: false };
+        return CohomologyResult {
+            h0: 0,
+            h1: 0,
+            emergence_detected: false,
+        };
     }
 
     let n_trans = transitions.len() / 2;
@@ -35,11 +39,13 @@ pub fn musical_cohomology(chords: &[i32], transitions: &[i32]) -> CohomologyResu
     for i in 0..n_trans {
         let from = transitions[i * 2] as usize;
         let to = transitions[i * 2 + 1] as usize;
-        if from >= n || to >= n { continue; }
+        if from >= n || to >= n {
+            continue;
+        }
 
         // Add undirected edge (deduplicate)
         let (u, v) = (from.min(to), from.max(to));
-        if !adj[u].iter().any(|&x| x == v) {
+        if !adj[u].contains(&v) {
             adj[u].push(v);
             adj[v].push(u);
             unique_edges += 1;
@@ -52,7 +58,9 @@ pub fn musical_cohomology(chords: &[i32], transitions: &[i32]) -> CohomologyResu
     let mut queue = std::collections::VecDeque::new();
 
     for start in 0..n {
-        if visited[start] { continue; }
+        if visited[start] {
+            continue;
+        }
         h0 += 1;
         queue.clear();
         queue.push_back(start);
@@ -92,7 +100,7 @@ mod tests {
     #[test]
     fn test_cycle_h1() {
         // 3 chords in a cycle → H1 = 1
-        let result = musical_cohomology(&[0, 4, 7], &[0,1, 1,2, 2,0]);
+        let result = musical_cohomology(&[0, 4, 7], &[0, 1, 1, 2, 2, 0]);
         assert_eq!(result.h0, 1);
         assert_eq!(result.h1, 1);
         assert!(result.emergence_detected);
@@ -100,7 +108,7 @@ mod tests {
 
     #[test]
     fn test_disconnected() {
-        let result = musical_cohomology(&[0, 1, 2, 3], &[0,1, 2,3]);
+        let result = musical_cohomology(&[0, 1, 2, 3], &[0, 1, 2, 3]);
         assert_eq!(result.h0, 2);
     }
 
@@ -122,7 +130,7 @@ mod tests {
         // 4 chords: 0→1→2→0 and 0→3→0
         // Unique undirected edges: 0-1, 1-2, 0-2, 0-3 = 4 edges
         // H1 = 4 - 4 + 1 = 1
-        let result = musical_cohomology(&[0, 4, 7, 11], &[0,1, 1,2, 2,0, 0,3, 3,0]);
+        let result = musical_cohomology(&[0, 4, 7, 11], &[0, 1, 1, 2, 2, 0, 0, 3, 3, 0]);
         assert_eq!(result.h0, 1);
         assert_eq!(result.h1, 1);
     }
@@ -130,7 +138,7 @@ mod tests {
     #[test]
     fn test_tree() {
         // Tree: 0→1, 0→2, 0→3 → no cycles, H1=0
-        let result = musical_cohomology(&[0, 1, 2, 3], &[0,1, 0,2, 0,3]);
+        let result = musical_cohomology(&[0, 1, 2, 3], &[0, 1, 0, 2, 0, 3]);
         assert_eq!(result.h0, 1);
         assert_eq!(result.h1, 0);
     }

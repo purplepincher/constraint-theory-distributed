@@ -13,7 +13,9 @@ pub enum Curve {
 /// Indian meend (glide) from `start` to `end` pitch in semitones.
 /// Returns `steps + 1` pitch values.
 pub fn meend(start: f64, end: f64, steps: i32, curve: Curve) -> Vec<f64> {
-    if steps < 1 { return vec![start]; }
+    if steps < 1 {
+        return vec![start];
+    }
     let mut result = Vec::with_capacity((steps + 1) as usize);
     for i in 0..=steps {
         let t = i as f64 / steps as f64;
@@ -43,7 +45,10 @@ pub fn gamak(center: f64, amplitude: f64, speed: f64, cycles: i32) -> Vec<f64> {
 
 /// Direction for bends.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum BendDirection { Up, Down }
+pub enum BendDirection {
+    Up,
+    Down,
+}
 
 /// Arabic quarter-tone bend.
 /// Returns a pitch trajectory: smoothstep up, hold, smoothstep down.
@@ -84,7 +89,11 @@ pub struct GraceEvent {
 
 /// Approach type for grace notes.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Approach { Adjacent, DiatonicAbove, DiatonicBelow }
+pub enum Approach {
+    Adjacent,
+    DiatonicAbove,
+    DiatonicBelow,
+}
 
 /// Universal grace note approaching `target`.
 pub fn grace_note(target: f64, approach: Approach, duration_ms: i32) -> Vec<GraceEvent> {
@@ -94,23 +103,41 @@ pub fn grace_note(target: f64, approach: Approach, duration_ms: i32) -> Vec<Grac
         Approach::DiatonicBelow => target - 2.0,
     };
     vec![
-        GraceEvent { pitch: (source * 100.0).round() / 100.0, duration_ms },
-        GraceEvent { pitch: (target * 100.0).round() / 100.0, duration_ms: 0 },
+        GraceEvent {
+            pitch: (source * 100.0).round() / 100.0,
+            duration_ms,
+        },
+        GraceEvent {
+            pitch: (target * 100.0).round() / 100.0,
+            duration_ms: 0,
+        },
     ]
 }
 
 /// Indian murki (turn) — rapid alternation between notes.
 pub fn murki(notes: &[f64], speed_ms: i32) -> Vec<GraceEvent> {
     if notes.len() < 2 {
-        return notes.iter().map(|&n| GraceEvent { pitch: (n * 100.0).round() / 100.0, duration_ms: speed_ms }).collect();
+        return notes
+            .iter()
+            .map(|&n| GraceEvent {
+                pitch: (n * 100.0).round() / 100.0,
+                duration_ms: speed_ms,
+            })
+            .collect();
     }
     let mut result = Vec::new();
     for _ in 0..2 {
         for &n in notes {
-            result.push(GraceEvent { pitch: (n * 100.0).round() / 100.0, duration_ms: speed_ms });
+            result.push(GraceEvent {
+                pitch: (n * 100.0).round() / 100.0,
+                duration_ms: speed_ms,
+            });
         }
-        for &n in notes[1..notes.len()-1].iter().rev() {
-            result.push(GraceEvent { pitch: (n * 100.0).round() / 100.0, duration_ms: speed_ms });
+        for &n in notes[1..notes.len() - 1].iter().rev() {
+            result.push(GraceEvent {
+                pitch: (n * 100.0).round() / 100.0,
+                duration_ms: speed_ms,
+            });
         }
     }
     result
@@ -132,7 +159,9 @@ pub fn shakes(note: f64, speed: f64, amplitude: f64) -> Vec<f64> {
 mod tests {
     use super::*;
 
-    fn approx_eq(a: f64, b: f64, eps: f64) -> bool { (a - b).abs() < eps }
+    fn approx_eq(a: f64, b: f64, eps: f64) -> bool {
+        (a - b).abs() < eps
+    }
 
     #[test]
     fn test_meend_exponential() {

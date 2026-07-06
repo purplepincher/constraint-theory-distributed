@@ -4,6 +4,12 @@
 //! They express musical output based on shared context and inter-cellular signaling.
 //! A JazzSession orchestrates multiple cells through phases (Head → Solo → Trading → Collective → Coda).
 
+// The `express_*` voice methods below are private, structurally similar
+// (channel, velocity range, activation, note range), and splitting each
+// into a parameter struct would move the complexity rather than reduce
+// it for these internal helpers.
+#![allow(clippy::too_many_arguments)]
+
 use std::collections::HashMap;
 
 // ── Constants ────────────────────────────────────────────────────────
@@ -61,8 +67,20 @@ pub struct MidiEvent {
 }
 
 impl MidiEvent {
-    pub fn new(note: u8, velocity: u8, duration_beats: f64, offset_beats: f64, channel: u8) -> Self {
-        Self { note, velocity, duration_beats, offset_beats, channel }
+    pub fn new(
+        note: u8,
+        velocity: u8,
+        duration_beats: f64,
+        offset_beats: f64,
+        channel: u8,
+    ) -> Self {
+        Self {
+            note,
+            velocity,
+            duration_beats,
+            offset_beats,
+            channel,
+        }
     }
 
     /// Simple quantize to nearest 16th note
@@ -83,11 +101,17 @@ pub struct CellOutput {
 
 impl CellOutput {
     pub fn empty() -> Self {
-        Self { events: Vec::new(), signals: HashMap::new() }
+        Self {
+            events: Vec::new(),
+            signals: HashMap::new(),
+        }
     }
 
     pub fn with_event(event: MidiEvent) -> Self {
-        Self { events: vec![event], signals: HashMap::new() }
+        Self {
+            events: vec![event],
+            signals: HashMap::new(),
+        }
     }
 }
 
@@ -143,7 +167,10 @@ pub struct TranscriptionFactor {
 
 impl TranscriptionFactor {
     pub fn new(gene_index: usize, sensitivity: f64) -> Self {
-        Self { gene_index, sensitivity }
+        Self {
+            gene_index,
+            sensitivity,
+        }
     }
 
     /// Compute activation level from a gene value
@@ -184,12 +211,18 @@ impl SharedContext {
     /// Get notes in current key (major scale)
     pub fn scale_notes(&self) -> Vec<u8> {
         let major_intervals: &[i32] = &[0, 2, 4, 5, 7, 9, 11];
-        major_intervals.iter().map(|&i| (self.key as i32 + i) as u8).collect()
+        major_intervals
+            .iter()
+            .map(|&i| (self.key as i32 + i) as u8)
+            .collect()
     }
 
     /// Get chord tones in current key
     pub fn chord_tones(&self) -> Vec<u8> {
-        self.chord.iter().map(|&interval| self.key + interval).collect()
+        self.chord
+            .iter()
+            .map(|&interval| self.key + interval)
+            .collect()
     }
 
     /// Advance one beat
@@ -335,13 +368,40 @@ impl MusicalCell {
                 self.express_drums(&mut output, context, channel, vel_lo, vel_hi, activation);
             }
             CellRole::Bass => {
-                self.express_bass(&mut output, context, channel, vel_lo, vel_hi, activation, note_lo, note_hi);
+                self.express_bass(
+                    &mut output,
+                    context,
+                    channel,
+                    vel_lo,
+                    vel_hi,
+                    activation,
+                    note_lo,
+                    note_hi,
+                );
             }
             CellRole::Piano => {
-                self.express_piano(&mut output, context, channel, vel_lo, vel_hi, activation, note_lo, note_hi);
+                self.express_piano(
+                    &mut output,
+                    context,
+                    channel,
+                    vel_lo,
+                    vel_hi,
+                    activation,
+                    note_lo,
+                    note_hi,
+                );
             }
             CellRole::Sax => {
-                self.express_sax(&mut output, context, channel, vel_lo, vel_hi, activation, note_lo, note_hi);
+                self.express_sax(
+                    &mut output,
+                    context,
+                    channel,
+                    vel_lo,
+                    vel_hi,
+                    activation,
+                    note_lo,
+                    note_hi,
+                );
             }
         }
 
@@ -353,13 +413,23 @@ impl MusicalCell {
         }
 
         // Generate outgoing signals
-        output.signals.insert("energy".into(), context.energy * activation);
-        output.signals.insert("density".into(), self.genome[Gene::Density.index()]);
-        output.signals.insert("syncopation".into(), self.genome[Gene::Syncopation.index()]);
+        output
+            .signals
+            .insert("energy".into(), context.energy * activation);
+        output
+            .signals
+            .insert("density".into(), self.genome[Gene::Density.index()]);
+        output
+            .signals
+            .insert("syncopation".into(), self.genome[Gene::Syncopation.index()]);
 
         // Update epigenetic markers (use it or lose it)
         for i in 0..GENOME_SIZE {
-            let usage = if output.events.iter().any(|e| e.channel == channel) { 0.01 } else { 0.0 };
+            let usage = if output.events.iter().any(|e| e.channel == channel) {
+                0.01
+            } else {
+                0.0
+            };
             self.epigenetic[i] = (self.epigenetic[i] + usage).min(1.0);
         }
 
@@ -372,8 +442,13 @@ impl MusicalCell {
     }
 
     fn express_drums(
-        &self, output: &mut CellOutput, context: &SharedContext,
-        channel: u8, vel_lo: u8, vel_hi: u8, activation: f64,
+        &self,
+        output: &mut CellOutput,
+        context: &SharedContext,
+        channel: u8,
+        vel_lo: u8,
+        vel_hi: u8,
+        activation: f64,
     ) {
         let beat = context.beat as f64;
         let density = self.genome[Gene::Density.index()];
@@ -382,7 +457,9 @@ impl MusicalCell {
         // Kick on 1 and 3
         if context.beat == 0 || context.beat == 2 {
             let vel = self.velocity(vel_lo, vel_hi, activation, 0.8);
-            output.events.push(MidiEvent::new(36, vel, 0.5, beat, channel));
+            output
+                .events
+                .push(MidiEvent::new(36, vel, 0.5, beat, channel));
         }
 
         // Hi-hat pattern based on density
@@ -390,17 +467,21 @@ impl MusicalCell {
         for i in 0..hh_divisions {
             let offset = beat + (i as f64 / hh_divisions as f64) * BEATS_PER_BAR as f64 / 2.0;
             // Skip some hits for syncopation
-            if sync > 0.5 && i % 2 == 1 && context.beat % 2 == 0 {
+            if sync > 0.5 && i % 2 == 1 && context.beat.is_multiple_of(2) {
                 continue;
             }
             let vel = self.velocity(vel_lo, vel_hi, activation, 0.5);
-            output.events.push(MidiEvent::new(42, vel, 0.25, offset, channel));
+            output
+                .events
+                .push(MidiEvent::new(42, vel, 0.25, offset, channel));
         }
 
         // Snare on 2 and 4
         if context.beat == 1 || context.beat == 3 {
             let vel = self.velocity(vel_lo, vel_hi, activation, 0.9);
-            output.events.push(MidiEvent::new(38, vel, 0.5, beat, channel));
+            output
+                .events
+                .push(MidiEvent::new(38, vel, 0.5, beat, channel));
         }
 
         // Ghost notes based on rhythmic complexity
@@ -408,20 +489,30 @@ impl MusicalCell {
         if complexity > 0.5 && context.beat % 2 == 1 {
             let offset = beat + 0.5;
             let vel = self.velocity(vel_lo, vel_hi, activation, 0.3);
-            output.events.push(MidiEvent::new(38, vel, 0.25, offset, channel));
+            output
+                .events
+                .push(MidiEvent::new(38, vel, 0.25, offset, channel));
         }
 
         // Ride cymbal for higher energy
         if context.energy > 0.6 {
             let vel = self.velocity(vel_lo, vel_hi, activation, 0.4);
-            output.events.push(MidiEvent::new(51, vel, 0.5, beat, channel));
+            output
+                .events
+                .push(MidiEvent::new(51, vel, 0.5, beat, channel));
         }
     }
 
     fn express_bass(
-        &self, output: &mut CellOutput, context: &SharedContext,
-        channel: u8, vel_lo: u8, vel_hi: u8, activation: f64,
-        note_lo: u8, note_hi: u8,
+        &self,
+        output: &mut CellOutput,
+        context: &SharedContext,
+        channel: u8,
+        vel_lo: u8,
+        vel_hi: u8,
+        activation: f64,
+        note_lo: u8,
+        note_hi: u8,
     ) {
         let beat = context.beat as f64;
         let chord = context.chord_tones();
@@ -432,7 +523,9 @@ impl MusicalCell {
         if context.beat == 0 && !chord.is_empty() {
             let note = (chord[0]).clamp(note_lo, note_hi);
             let vel = self.velocity(vel_lo, vel_hi, activation, 0.9);
-            output.events.push(MidiEvent::new(note, vel, 2.0, beat, channel));
+            output
+                .events
+                .push(MidiEvent::new(note, vel, 2.0, beat, channel));
         }
 
         // Walking bass based on density
@@ -441,7 +534,9 @@ impl MusicalCell {
             if let Some(&note) = scale.iter().find(|&&n| n >= note_lo && n <= note_hi) {
                 let offset = beat + if groove > 0.5 { 0.1 } else { 0.0 };
                 let vel = self.velocity(vel_lo, vel_hi, activation, 0.6);
-                output.events.push(MidiEvent::new(note, vel, 0.8, offset, channel));
+                output
+                    .events
+                    .push(MidiEvent::new(note, vel, 0.8, offset, channel));
             }
         }
 
@@ -451,15 +546,23 @@ impl MusicalCell {
                 let approach = if root > note_lo { root - 1 } else { root + 1 };
                 let note = approach.clamp(note_lo, note_hi);
                 let vel = self.velocity(vel_lo, vel_hi, activation, 0.7);
-                output.events.push(MidiEvent::new(note, vel, 0.8, beat + 0.5, channel));
+                output
+                    .events
+                    .push(MidiEvent::new(note, vel, 0.8, beat + 0.5, channel));
             }
         }
     }
 
     fn express_piano(
-        &self, output: &mut CellOutput, context: &SharedContext,
-        channel: u8, vel_lo: u8, vel_hi: u8, activation: f64,
-        note_lo: u8, note_hi: u8,
+        &self,
+        output: &mut CellOutput,
+        context: &SharedContext,
+        channel: u8,
+        vel_lo: u8,
+        vel_hi: u8,
+        activation: f64,
+        note_lo: u8,
+        note_hi: u8,
     ) {
         let beat = context.beat as f64;
         let chord = context.chord_tones();
@@ -469,10 +572,16 @@ impl MusicalCell {
         // Comp chords — voicings from chord tones
         if context.beat == 0 || (sync > 0.5 && context.beat == 2) {
             let mut notes = Vec::new();
-            let max_notes = if self.solo { 2 } else { (harmony * 4.0) as usize + 1 };
+            let max_notes = if self.solo {
+                2
+            } else {
+                (harmony * 4.0) as usize + 1
+            };
 
             for (i, &tone) in chord.iter().enumerate() {
-                if i >= max_notes { break; }
+                if i >= max_notes {
+                    break;
+                }
                 let note = (tone + 12).clamp(note_lo, note_hi);
                 notes.push(note);
             }
@@ -481,7 +590,9 @@ impl MusicalCell {
             let offset = if sync > 0.6 { beat + 0.25 } else { beat };
             let duration = if context.beat == 0 { 2.0 } else { 1.5 };
             for note in notes {
-                output.events.push(MidiEvent::new(note, vel, duration, offset, channel));
+                output
+                    .events
+                    .push(MidiEvent::new(note, vel, duration, offset, channel));
             }
         }
 
@@ -489,22 +600,31 @@ impl MusicalCell {
         let poly = self.genome[Gene::PolyphonyPreference.index()];
         if poly > 0.5 && context.beat == 3 {
             let scale = context.scale_notes();
-            let notes_in_range: Vec<u8> = scale.into_iter()
+            let notes_in_range: Vec<u8> = scale
+                .into_iter()
                 .filter(|&n| n >= note_lo && n <= note_hi)
                 .collect();
             if !notes_in_range.is_empty() {
                 let idx = (context.bar + context.beat) % notes_in_range.len();
                 let note = notes_in_range[idx];
                 let vel = self.velocity(vel_lo, vel_hi, activation, 0.5);
-                output.events.push(MidiEvent::new(note, vel, 0.5, beat + 0.5, channel));
+                output
+                    .events
+                    .push(MidiEvent::new(note, vel, 0.5, beat + 0.5, channel));
             }
         }
     }
 
     fn express_sax(
-        &self, output: &mut CellOutput, context: &SharedContext,
-        channel: u8, vel_lo: u8, vel_hi: u8, activation: f64,
-        note_lo: u8, note_hi: u8,
+        &self,
+        output: &mut CellOutput,
+        context: &SharedContext,
+        channel: u8,
+        vel_lo: u8,
+        vel_hi: u8,
+        activation: f64,
+        note_lo: u8,
+        note_hi: u8,
     ) {
         if !self.solo && context.energy < 0.4 {
             return; // Sax rests when not soloing and energy is low
@@ -512,7 +632,8 @@ impl MusicalCell {
 
         let beat = context.beat as f64;
         let scale = context.scale_notes();
-        let notes_in_range: Vec<u8> = scale.into_iter()
+        let notes_in_range: Vec<u8> = scale
+            .into_iter()
             .filter(|&n| n >= note_lo && n <= note_hi)
             .collect();
 
@@ -525,7 +646,11 @@ impl MusicalCell {
         let sync = self.genome[Gene::Syncopation.index()];
 
         // Generate melodic line
-        let num_notes = if self.solo { (activation * 4.0) as usize + 1 } else { 1 };
+        let num_notes = if self.solo {
+            (activation * 4.0) as usize + 1
+        } else {
+            1
+        };
         for i in 0..num_notes {
             let idx = (context.bar * BEATS_PER_BAR + context.beat + i) % notes_in_range.len();
             let note = notes_in_range[idx];
@@ -540,9 +665,16 @@ impl MusicalCell {
 
             let offset = beat + (i as f64 * 0.5) + if sync > 0.5 { 0.125 } else { 0.0 };
             let duration = if articulation > 0.6 { 0.3 } else { 0.7 };
-            let vel = self.velocity(vel_lo, vel_hi, activation, if self.solo { 0.8 } else { 0.5 });
+            let vel = self.velocity(
+                vel_lo,
+                vel_hi,
+                activation,
+                if self.solo { 0.8 } else { 0.5 },
+            );
 
-            output.events.push(MidiEvent::new(note, vel, duration, offset, channel));
+            output
+                .events
+                .push(MidiEvent::new(note, vel, duration, offset, channel));
         }
     }
 
@@ -676,7 +808,12 @@ impl JazzSession {
 
         // Express all cells
         let mut outputs = Vec::new();
-        for role in &[CellRole::Piano, CellRole::Bass, CellRole::Drums, CellRole::Sax] {
+        for role in &[
+            CellRole::Piano,
+            CellRole::Bass,
+            CellRole::Drums,
+            CellRole::Sax,
+        ] {
             if let Some(cell) = self.cells.get_mut(role) {
                 let output = cell.express(&self.context);
                 // Merge signals back
@@ -751,7 +888,11 @@ impl JazzSession {
             SessionPhase::Trading => {
                 // Trade between piano and sax every 4 bars
                 let trading_segment = (self.phase_bar / 4) % 2;
-                let role = if trading_segment == 0 { CellRole::Piano } else { CellRole::Sax };
+                let role = if trading_segment == 0 {
+                    CellRole::Piano
+                } else {
+                    CellRole::Sax
+                };
                 if let Some(cell) = self.cells.get_mut(&role) {
                     cell.solo = true;
                 }
@@ -792,10 +933,10 @@ impl JazzSession {
     pub fn current_chord(&self) -> Vec<u8> {
         let bar_mod = self.context.bar % 4;
         match bar_mod {
-            0 => vec![2, 5, 9],     // ii
-            1 => vec![7, 11, 2],    // V
-            2 => vec![0, 4, 7],     // I
-            3 => vec![0, 4, 7],     // I (continued)
+            0 => vec![2, 5, 9],  // ii
+            1 => vec![7, 11, 2], // V
+            2 => vec![0, 4, 7],  // I
+            3 => vec![0, 4, 7],  // I (continued)
             _ => vec![0, 4, 7],
         }
     }
@@ -839,7 +980,11 @@ impl TradingFours {
         self.current_bar += 1;
         if self.current_bar >= self.bars_per_trade {
             self.current_bar = 0;
-            self.current_leader = if self.current_leader == self.cell_a { self.cell_b } else { self.cell_a };
+            self.current_leader = if self.current_leader == self.cell_a {
+                self.cell_b
+            } else {
+                self.cell_a
+            };
         }
         self.current_leader
     }
@@ -851,7 +996,11 @@ impl TradingFours {
 
     /// Get the responding cell
     pub fn responder(&self) -> CellRole {
-        if self.current_leader == self.cell_a { self.cell_b } else { self.cell_a }
+        if self.current_leader == self.cell_a {
+            self.cell_b
+        } else {
+            self.cell_a
+        }
     }
 }
 
@@ -882,7 +1031,11 @@ impl CallAndResponse {
 
     /// Advance one beat, return which role should play
     pub fn tick(&mut self) -> CellRole {
-        let active = if self.in_call { self.leader } else { self.responder };
+        let active = if self.in_call {
+            self.leader
+        } else {
+            self.responder
+        };
         self.current_position += 1;
 
         if self.in_call && self.current_position >= self.call_beats {
@@ -1040,7 +1193,12 @@ mod tests {
 
     #[test]
     fn test_cell_express_all_roles() {
-        for role in &[CellRole::Piano, CellRole::Bass, CellRole::Drums, CellRole::Sax] {
+        for role in &[
+            CellRole::Piano,
+            CellRole::Bass,
+            CellRole::Drums,
+            CellRole::Sax,
+        ] {
             let mut cell = MusicalCell::new(*role);
             let ctx = SharedContext::new(60, 120.0);
             let output = cell.express(&ctx);
@@ -1048,7 +1206,11 @@ mod tests {
                 // Sax might rest at low energy
                 continue;
             }
-            assert!(!output.events.is_empty(), "Cell {:?} produced no events", role);
+            assert!(
+                !output.events.is_empty(),
+                "Cell {:?} produced no events",
+                role
+            );
         }
     }
 
@@ -1192,8 +1354,7 @@ mod tests {
 
     #[test]
     fn test_call_and_response_custom_durations() {
-        let cr = CallAndResponse::new(CellRole::Sax, CellRole::Piano)
-            .with_durations(2, 2);
+        let cr = CallAndResponse::new(CellRole::Sax, CellRole::Piano).with_durations(2, 2);
         assert_eq!(cr.call_beats, 2);
         assert_eq!(cr.response_beats, 2);
     }

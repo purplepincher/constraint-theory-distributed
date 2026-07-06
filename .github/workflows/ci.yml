@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  test-python:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -20,3 +20,17 @@ jobs:
       - run: pip install -e ".[dev]"
       - run: pytest tests/
       - run: ruff check .
+
+  test-rust:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: rust
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - run: cargo test
+      - run: cargo fmt --check
+      - run: cargo clippy -- -D warnings

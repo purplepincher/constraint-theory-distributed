@@ -5,13 +5,16 @@
 
 use std::f64::consts::PI;
 
-const PHI: f64 = 1.618033988749895;
 const INV_PHI: f64 = 0.618033988749895;
 const TWO_PI_OVER_5: f64 = 2.0 * PI / 5.0;
 const DIM: usize = 5;
 
 // ── Internal tile ───────────────────────────────────────────────────
 
+// `source` and `tile_type` are part of the tile's real domain state (the
+// 5D lattice point it projected from, and its rhombus type) — kept even
+// though nothing outside construction reads them yet.
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 struct Tile {
     x: f64,
@@ -21,7 +24,10 @@ struct Tile {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum TileType { Thick, Thin }
+enum TileType {
+    Thick,
+    Thin,
+}
 
 // ── Linear algebra ──────────────────────────────────────────────────
 
@@ -39,10 +45,17 @@ fn dot(a: &[f64], b: &[f64]) -> f64 {
 fn normalize(v: &mut [f64]) {
     let norm = v.iter().map(|x| x * x).sum::<f64>().sqrt();
     if norm > 1e-12 {
-        for x in v.iter_mut() { *x /= norm; }
+        for x in v.iter_mut() {
+            *x /= norm;
+        }
     }
 }
 
+// Index variables here double as arithmetic values (e.g. `idx = 2 + i`)
+// across parallel fixed-size arrays, not just as iteration indices —
+// an iterator rewrite would obscure the cross-array indexing rather
+// than simplify it.
+#[allow(clippy::needless_range_loop)]
 fn gram_schmidt_perp(proj: &[[f64; DIM]; 2]) -> [[f64; DIM]; 3] {
     let mut basis: Vec<Vec<f64>> = Vec::new();
 
@@ -59,7 +72,9 @@ fn gram_schmidt_perp(proj: &[[f64; DIM]; 2]) -> [[f64; DIM]; 3] {
         e[i] = 1.0;
         for b in &basis {
             let d = dot(&e, b);
-            for k in 0..DIM { e[k] -= d * b[k]; }
+            for k in 0..DIM {
+                e[k] -= d * b[k];
+            }
         }
         normalize(&mut e);
         let norm: f64 = e.iter().map(|x| x * x).sum::<f64>().sqrt();
@@ -72,7 +87,9 @@ fn gram_schmidt_perp(proj: &[[f64; DIM]; 2]) -> [[f64; DIM]; 3] {
     for i in 0..3 {
         let idx = 2 + i;
         if idx < basis.len() {
-            for j in 0..DIM { perp[i][j] = basis[idx][j]; }
+            for j in 0..DIM {
+                perp[i][j] = basis[idx][j];
+            }
         }
     }
     perp
@@ -80,6 +97,9 @@ fn gram_schmidt_perp(proj: &[[f64; DIM]; 2]) -> [[f64; DIM]; 3] {
 
 // ── Cut-and-project ─────────────────────────────────────────────────
 
+// `k` is used both as an index into two parallel rows and as an
+// arithmetic angle value (`k as f64 * TWO_PI_OVER_5`).
+#[allow(clippy::needless_range_loop)]
 fn golden_projection() -> [[f64; DIM]; 2] {
     let mut proj = [[0.0; DIM]; 2];
     for k in 0..DIM {
@@ -101,7 +121,13 @@ fn compile_tiles(range: i32, groove_width: f64) -> Vec<Tile> {
 
     loop {
         // Compute source as f64
-        let src = [coords[0] as f64, coords[1] as f64, coords[2] as f64, coords[3] as f64, coords[4] as f64];
+        let src = [
+            coords[0] as f64,
+            coords[1] as f64,
+            coords[2] as f64,
+            coords[3] as f64,
+            coords[4] as f64,
+        ];
 
         // Check perpendicular window
         let mut pv = [0.0, 0.0, 0.0];
@@ -116,7 +142,11 @@ fn compile_tiles(range: i32, groove_width: f64) -> Vec<Tile> {
             let target = mat_vec(&proj, &src);
             let s = coords.iter().map(|&c| c.abs() as f64).sum::<f64>() * INV_PHI;
             let frac = s - s.floor();
-            let tile_type = if frac < INV_PHI { TileType::Thick } else { TileType::Thin };
+            let tile_type = if frac < INV_PHI {
+                TileType::Thick
+            } else {
+                TileType::Thin
+            };
 
             tiles.push(Tile {
                 x: target[0],
@@ -129,7 +159,9 @@ fn compile_tiles(range: i32, groove_width: f64) -> Vec<Tile> {
         // Increment multi-index
         let mut carry = true;
         for d in 0..DIM {
-            if !carry { break; }
+            if !carry {
+                break;
+            }
             idx[d] += 1;
             coords[d] = idx[d] as i32 - range;
             if idx[d] > (2 * range) as usize {
@@ -139,7 +171,9 @@ fn compile_tiles(range: i32, groove_width: f64) -> Vec<Tile> {
                 carry = false;
             }
         }
-        if carry { break; }
+        if carry {
+            break;
+        }
     }
 
     tiles
@@ -150,13 +184,16 @@ fn compile_tiles(range: i32, groove_width: f64) -> Vec<Tile> {
 /// Generate Penrose rhythm hits via cut-and-project.
 pub fn penrose_rhythm(range: i32, groove_width: f64) -> Vec<i32> {
     let tiles = compile_tiles(range, groove_width);
-    if tiles.is_empty() { return vec![]; }
+    if tiles.is_empty() {
+        return vec![];
+    }
 
     let xmin = tiles.iter().map(|t| t.x).fold(f64::INFINITY, f64::min);
     let xmax = tiles.iter().map(|t| t.x).fold(f64::NEG_INFINITY, f64::max);
     let span = (xmax - xmin).max(1e-12);
 
-    let mut hits: Vec<i32> = tiles.iter()
+    let mut hits: Vec<i32> = tiles
+        .iter()
         .map(|t| ((t.x - xmin) / span * 16.0) as i32)
         .collect();
     hits.sort();
@@ -167,27 +204,34 @@ pub fn penrose_rhythm(range: i32, groove_width: f64) -> Vec<i32> {
 /// Generate Penrose melody notes from a scale.
 pub fn penrose_melody(scale: &[i32], range: i32) -> Vec<i32> {
     let tiles = compile_tiles(range, 0.5);
-    if tiles.is_empty() { return vec![]; }
+    if tiles.is_empty() {
+        return vec![];
+    }
 
     let ymin = tiles.iter().map(|t| t.y).fold(f64::INFINITY, f64::min);
     let ymax = tiles.iter().map(|t| t.y).fold(f64::NEG_INFINITY, f64::max);
     let yspan = (ymax - ymin).max(1e-12);
 
-    tiles.iter().map(|t| {
-        let y_norm = (t.y - ymin) / yspan;
-        let sidx = (y_norm * (scale.len() - 1) as f64) as usize;
-        let sidx = sidx.min(scale.len() - 1);
-        let oct_off = (y_norm * 2.0) as i32 - 1;
-        let midi = 12 * (5 + oct_off) + scale[sidx];
-        midi.clamp(0, 127)
-    }).collect()
+    tiles
+        .iter()
+        .map(|t| {
+            let y_norm = (t.y - ymin) / yspan;
+            let sidx = (y_norm * (scale.len() - 1) as f64) as usize;
+            let sidx = sidx.min(scale.len() - 1);
+            let oct_off = (y_norm * 2.0) as i32 - 1;
+            let midi = 12 * (5 + oct_off) + scale[sidx];
+            midi.clamp(0, 127)
+        })
+        .collect()
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    fn approx_eq(a: f64, b: f64, eps: f64) -> bool { (a - b).abs() < eps }
+    fn approx_eq(a: f64, b: f64, eps: f64) -> bool {
+        (a - b).abs() < eps
+    }
 
     #[test]
     fn test_penrose_rhythm_not_empty() {
@@ -202,7 +246,7 @@ mod tests {
     fn test_penrose_rhythm_sorted() {
         let hits = penrose_rhythm(4, 0.6);
         for i in 1..hits.len() {
-            assert!(hits[i] >= hits[i-1]);
+            assert!(hits[i] >= hits[i - 1]);
         }
     }
 

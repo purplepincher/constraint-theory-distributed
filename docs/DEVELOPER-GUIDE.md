@@ -151,7 +151,7 @@ def test_single_vertex():
 ### Running Tests
 
 ```bash
-pytest                              # All 83 tests
+pytest                              # All 308 tests (83 core + property/edge-case/benchmark suites)
 pytest tests/test_lattice.py        # One module
 pytest -k "test_snap"               # One test
 pytest --tb=short                   # Compact tracebacks

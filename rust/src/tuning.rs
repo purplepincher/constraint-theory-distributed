@@ -34,7 +34,9 @@ impl TuningSystem {
         let mut best_val = 0.0;
         for i in 0..self.divisions {
             let c = self.cents(i as i32) % 1200.0;
-            let diff = (c - note_wrapped).abs().min(1200.0 - (c - note_wrapped).abs());
+            let diff = (c - note_wrapped)
+                .abs()
+                .min(1200.0 - (c - note_wrapped).abs());
             if diff < best_dist {
                 best_dist = diff;
                 best_val = c;
@@ -50,24 +52,70 @@ impl TuningSystem {
 
 // ── Generator functions ─────────────────────────────────────────────
 
-fn gen_equal_12(degree: i32) -> f64 { degree as f64 * (1200.0 / 12.0) }
+fn gen_equal_12(degree: i32) -> f64 {
+    degree as f64 * (1200.0 / 12.0)
+}
 
 fn gen_just(degree: i32) -> f64 {
-    let ratios = [1.0, 16.0/15.0, 9.0/8.0, 6.0/5.0, 5.0/4.0, 4.0/3.0, 45.0/32.0, 3.0/2.0, 8.0/5.0, 5.0/3.0, 9.0/5.0, 15.0/8.0];
-    if (0..12).contains(&degree) { ratio_to_cents(ratios[degree as usize]) } else { 0.0 }
+    let ratios = [
+        1.0,
+        16.0 / 15.0,
+        9.0 / 8.0,
+        6.0 / 5.0,
+        5.0 / 4.0,
+        4.0 / 3.0,
+        45.0 / 32.0,
+        3.0 / 2.0,
+        8.0 / 5.0,
+        5.0 / 3.0,
+        9.0 / 5.0,
+        15.0 / 8.0,
+    ];
+    if (0..12).contains(&degree) {
+        ratio_to_cents(ratios[degree as usize])
+    } else {
+        0.0
+    }
 }
 
 fn gen_shruti(degree: i32) -> f64 {
     let ratios = [
-        1.0, 256.0/243.0, 16.0/15.0, 10.0/9.0, 9.0/8.0, 32.0/27.0, 6.0/5.0, 5.0/4.0, 81.0/64.0,
-        4.0/3.0, 27.0/20.0, 45.0/32.0, 729.0/512.0, 3.0/2.0, 128.0/81.0, 8.0/5.0, 5.0/3.0,
-        27.0/16.0, 16.0/9.0, 9.0/5.0, 15.0/8.0, 243.0/128.0
+        1.0,
+        256.0 / 243.0,
+        16.0 / 15.0,
+        10.0 / 9.0,
+        9.0 / 8.0,
+        32.0 / 27.0,
+        6.0 / 5.0,
+        5.0 / 4.0,
+        81.0 / 64.0,
+        4.0 / 3.0,
+        27.0 / 20.0,
+        45.0 / 32.0,
+        729.0 / 512.0,
+        3.0 / 2.0,
+        128.0 / 81.0,
+        8.0 / 5.0,
+        5.0 / 3.0,
+        27.0 / 16.0,
+        16.0 / 9.0,
+        9.0 / 5.0,
+        15.0 / 8.0,
+        243.0 / 128.0,
     ];
-    if (0..22).contains(&degree) { ratio_to_cents(ratios[degree as usize]) } else { 0.0 }
+    if (0..22).contains(&degree) {
+        ratio_to_cents(ratios[degree as usize])
+    } else {
+        0.0
+    }
 }
 
-fn gen_quarter_24(degree: i32) -> f64 { degree as f64 * 50.0 }
-fn gen_penta_5(degree: i32) -> f64 { degree as f64 * 240.0 }
+fn gen_quarter_24(degree: i32) -> f64 {
+    degree as f64 * 50.0
+}
+fn gen_penta_5(degree: i32) -> f64 {
+    degree as f64 * 240.0
+}
 
 fn gen_meantone(degree: i32) -> f64 {
     // Computed on first call, cached in static
@@ -85,7 +133,11 @@ fn gen_meantone(degree: i32) -> f64 {
         n.sort_by(|a, b| a.partial_cmp(b).unwrap());
         n
     });
-    if (0..12).contains(&degree) { notes[degree as usize] } else { 0.0 }
+    if (0..12).contains(&degree) {
+        notes[degree as usize]
+    } else {
+        0.0
+    }
 }
 
 fn gen_pythagorean(degree: i32) -> f64 {
@@ -103,29 +155,85 @@ fn gen_pythagorean(degree: i32) -> f64 {
         n.sort_by(|a, b| a.partial_cmp(b).unwrap());
         n
     });
-    if (0..12).contains(&degree) { notes[degree as usize] } else { 0.0 }
+    if (0..12).contains(&degree) {
+        notes[degree as usize]
+    } else {
+        0.0
+    }
 }
 
 // ── Pre-built tuning systems ────────────────────────────────────────
 
-pub fn equal_temperament() -> TuningSystem { TuningSystem { name: "equal_temperament", divisions: 12, generator: gen_equal_12 } }
-pub fn just_intonation() -> TuningSystem { TuningSystem { name: "just_intonation", divisions: 12, generator: gen_just } }
-pub fn shruti_22() -> TuningSystem { TuningSystem { name: "shruti_22", divisions: 22, generator: gen_shruti } }
-pub fn quarter_tone_24() -> TuningSystem { TuningSystem { name: "quarter_tone_24", divisions: 24, generator: gen_quarter_24 } }
-pub fn pentatonic_5() -> TuningSystem { TuningSystem { name: "pentatonic_5", divisions: 5, generator: gen_penta_5 } }
-pub fn meantone() -> TuningSystem { TuningSystem { name: "meantone", divisions: 12, generator: gen_meantone } }
-pub fn pythagorean() -> TuningSystem { TuningSystem { name: "pythagorean", divisions: 12, generator: gen_pythagorean } }
+pub fn equal_temperament() -> TuningSystem {
+    TuningSystem {
+        name: "equal_temperament",
+        divisions: 12,
+        generator: gen_equal_12,
+    }
+}
+pub fn just_intonation() -> TuningSystem {
+    TuningSystem {
+        name: "just_intonation",
+        divisions: 12,
+        generator: gen_just,
+    }
+}
+pub fn shruti_22() -> TuningSystem {
+    TuningSystem {
+        name: "shruti_22",
+        divisions: 22,
+        generator: gen_shruti,
+    }
+}
+pub fn quarter_tone_24() -> TuningSystem {
+    TuningSystem {
+        name: "quarter_tone_24",
+        divisions: 24,
+        generator: gen_quarter_24,
+    }
+}
+pub fn pentatonic_5() -> TuningSystem {
+    TuningSystem {
+        name: "pentatonic_5",
+        divisions: 5,
+        generator: gen_penta_5,
+    }
+}
+pub fn meantone() -> TuningSystem {
+    TuningSystem {
+        name: "meantone",
+        divisions: 12,
+        generator: gen_meantone,
+    }
+}
+pub fn pythagorean() -> TuningSystem {
+    TuningSystem {
+        name: "pythagorean",
+        divisions: 12,
+        generator: gen_pythagorean,
+    }
+}
 
 /// Get all 7 tuning systems.
 pub fn all_tuning_systems() -> Vec<TuningSystem> {
-    vec![equal_temperament(), just_intonation(), shruti_22(), quarter_tone_24(), pentatonic_5(), meantone(), pythagorean()]
+    vec![
+        equal_temperament(),
+        just_intonation(),
+        shruti_22(),
+        quarter_tone_24(),
+        pentatonic_5(),
+        meantone(),
+        pythagorean(),
+    ]
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    fn approx_eq(a: f64, b: f64, eps: f64) -> bool { (a - b).abs() < eps }
+    fn approx_eq(a: f64, b: f64, eps: f64) -> bool {
+        (a - b).abs() < eps
+    }
 
     #[test]
     fn test_equal_temperament() {
