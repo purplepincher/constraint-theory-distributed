@@ -1,6 +1,12 @@
-# constraint-theory-core
+# constraint-theory-distributed
 
-Unified mathematical library for constraint theory — Eisenstein lattices, deadband funnels, Laman rigidity, distributed consensus, and holonomy verification. Five composable modules. 83 tests. Zero external dependencies.
+> Extracted from a stray `master` branch on
+> [`purplepincher/constraint-theory-core`](https://github.com/purplepincher/constraint-theory-core)
+> (a different, unrelated Rust crate) during an org-wide branch cleanup —
+> this is real, separately-authored work that doesn't belong mixed into
+> that repo's history. Full commit history preserved on extraction.
+
+Unified mathematical library for constraint theory — Eisenstein lattices, deadband funnels, Laman rigidity, distributed consensus, and holonomy verification. Five composable modules. 308 tests (83 core + property/edge-case/benchmark suites). Zero external dependencies.
 
 ## What It Does
 
