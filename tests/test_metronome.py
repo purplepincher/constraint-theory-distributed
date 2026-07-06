@@ -1,7 +1,9 @@
 """Tests for constraint_theory_core.metronome — distributed consensus."""
 
 import math
+
 import pytest
+
 from constraint_theory_core.metronome import Metronome, MetronomeState
 from constraint_theory_core.temporal import FunnelPhase
 

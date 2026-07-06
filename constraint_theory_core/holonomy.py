@@ -8,16 +8,13 @@ cycle; global consistency requires every tile to be holonomy-free.
 
 from __future__ import annotations
 
-from typing import List, Tuple
-
 from .lattice import DIRECTION_COUNT
-
 
 # ---------------------------------------------------------------------------
 # Core operations
 # ---------------------------------------------------------------------------
 
-def cycle_holonomy(edges: List[Tuple[int, int]], directions: List[int]) -> int:
+def cycle_holonomy(edges: list[tuple[int, int]], directions: list[int]) -> int:
     """Compute holonomy around a directed cycle.
 
     The holonomy is the signed sum of direction indices modulo 48.
@@ -62,7 +59,7 @@ def cycle_holonomy(edges: List[Tuple[int, int]], directions: List[int]) -> int:
 
 
 def verify_consistency(
-    tiles: List[Tuple[List[Tuple[int, int]], List[int]]]
+    tiles: list[tuple[list[tuple[int, int]], list[int]]]
 ) -> bool:
     """Verify all PLATO tiles are holonomy-free.
 
@@ -85,14 +82,11 @@ def verify_consistency(
     >>> verify_consistency(tiles)
     True
     """
-    for edges, directions in tiles:
-        if cycle_holonomy(edges, directions) != 0:
-            return False
-    return True
+    return all(cycle_holonomy(edges, directions) == 0 for edges, directions in tiles)
 
 
 def soft_verify_consistency(
-    tiles: List[Tuple[List[Tuple[int, int]], List[int]]],
+    tiles: list[tuple[list[tuple[int, int]], list[int]]],
     epsilon: float = 0.0,
 ) -> float:
     """Soft holonomy verification with continuous tolerance.
@@ -145,7 +139,7 @@ def soft_verify_consistency(
 
 
 def isolate_fault(
-    tiles: List[Tuple[List[Tuple[int, int]], List[int]]]
+    tiles: list[tuple[list[tuple[int, int]], list[int]]]
 ) -> int:
     """O(log N) fault isolation via cycle bisection.
 
@@ -198,8 +192,8 @@ def isolate_fault(
 
 
 def fault_boundaries(
-    tiles: List[Tuple[List[Tuple[int, int]], List[int]]]
-) -> List[int]:
+    tiles: list[tuple[list[tuple[int, int]], list[int]]]
+) -> list[int]:
     """Return indices of all inconsistent tiles (O(N) scan).
 
     Parameters
@@ -212,7 +206,7 @@ def fault_boundaries(
     List[int]
         Indices of inconsistent tiles.
     """
-    bad: List[int] = []
+    bad: list[int] = []
     for idx, (edges, directions) in enumerate(tiles):
         if cycle_holonomy(edges, directions) != 0:
             bad.append(idx)

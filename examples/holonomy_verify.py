@@ -8,9 +8,9 @@ it's broken. isolate_fault finds the bad tile in O(log N) via bisection.
 
 from constraint_theory_core.holonomy import (
     cycle_holonomy,
-    verify_consistency,
-    isolate_fault,
     fault_boundaries,
+    isolate_fault,
+    verify_consistency,
 )
 
 

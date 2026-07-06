@@ -18,13 +18,30 @@ Example
 True
 """
 
+from .exercises import (
+    generate_exercise,
+)
+from .genre_brain import (
+    GenreEpsilons,
+    custom_genre,
+    get_genre,
+    list_genres,
+    sweep_genre,
+)
+from .holonomy import (
+    cycle_holonomy,
+    fault_boundaries,
+    isolate_fault,
+    soft_verify_consistency,
+    verify_consistency,
+)
 from .lattice import (
-    A2Point,
     COVERING_RADIUS,
     DIRECTION_COUNT,
     DODECET_DIRECTIONS,  # noqa: F401 — re-exported for external use
     SAFE_THRESHOLD,
     SQRT_3,
+    A2Point,
     covering_radius,
     decode_dodecet,
     encode_dodecet,
@@ -37,13 +54,10 @@ from .lattice import (
     vector48_decode,
     vector48_encode,
 )
-
-from .temporal import (
-    FunnelPhase,
-    FunnelResult,
-    TemporalAgent,
+from .metronome import (
+    Metronome,
+    MetronomeState,
 )
-
 from .rigidity import (
     algebraic_connectivity,
     henneberg_construct,
@@ -51,30 +65,10 @@ from .rigidity import (
     optimal_coupling,
     soft_rigidity,
 )
-
-from .metronome import (
-    Metronome,
-    MetronomeState,
-)
-
-from .holonomy import (
-    cycle_holonomy,
-    fault_boundaries,
-    isolate_fault,
-    soft_verify_consistency,
-    verify_consistency,
-)
-
-from .genre_brain import (
-    GenreEpsilons,
-    custom_genre,
-    get_genre,
-    list_genres,
-    sweep_genre,
-)
-
-from .exercises import (
-    generate_exercise,
+from .temporal import (
+    FunnelPhase,
+    FunnelResult,
+    TemporalAgent,
 )
 
 __version__ = "0.1.0"

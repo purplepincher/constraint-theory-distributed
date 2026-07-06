@@ -6,7 +6,7 @@ narrows it exponentially: ε(t) = ε₀ · e^(-λt). When error exceeds
 the deadband, it's an anomaly and the funnel resets.
 """
 
-from constraint_theory_core.temporal import TemporalAgent, FunnelPhase
+from constraint_theory_core.temporal import TemporalAgent
 
 
 def main():

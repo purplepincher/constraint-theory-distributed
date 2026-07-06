@@ -8,27 +8,21 @@ Validates that:
 """
 
 import math
-import pytest
-from constraint_theory_core import (
-    soft_snap,
-    snap,
-    covering_radius,
-    TemporalAgent,
-    FunnelPhase,
-    is_laman,
-    henneberg_construct,
-    soft_rigidity,
-    Metronome,
-    verify_consistency,
-    soft_verify_consistency,
-    cycle_holonomy,
-    GenreEpsilons,
-    get_genre,
-    sweep_genre,
-    list_genres,
-    custom_genre,
-)
 
+import pytest
+
+from constraint_theory_core import (
+    FunnelPhase,
+    Metronome,
+    TemporalAgent,
+    get_genre,
+    henneberg_construct,
+    snap,
+    soft_rigidity,
+    soft_snap,
+    soft_verify_consistency,
+    sweep_genre,
+)
 
 # ---------------------------------------------------------------------------
 # soft_snap core tests (15 tests)
@@ -423,7 +417,7 @@ class TestSoftPipeline:
             results[eps] = {"snap_err": err, "rigidity": rig, "holonomy": hol}
 
         # Verify all epsilons produce valid outputs
-        for eps, r in results.items():
+        for _eps, r in results.items():
             assert r["snap_err"] >= 0
             assert 0.0 <= r["rigidity"] <= 1.0
             assert 0.0 <= r["holonomy"] <= 1.0

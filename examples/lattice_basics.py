@@ -5,11 +5,18 @@ Every point in the plane is within ρ = 1/√3 ≈ 0.577 of a lattice point.
 This is a geometric guarantee, not an approximation.
 """
 
-from constraint_theory_core.lattice import (
-    A2Point, snap, covering_radius, is_safe, norm_sq,
-    decode_dodecet, encode_dodecet, vector48_encode, vector48_decode,
-)
 import math
+
+from constraint_theory_core.lattice import (
+    A2Point,
+    covering_radius,
+    decode_dodecet,
+    encode_dodecet,
+    is_safe,
+    snap,
+    vector48_decode,
+    vector48_encode,
+)
 
 
 def main():

@@ -1,10 +1,19 @@
 """Tests for constraint_theory_core.lattice — Eisenstein A₂ operations."""
 
 import math
+
 import pytest
+
 from constraint_theory_core.lattice import (
-    A2Point, snap, covering_radius, is_safe, decode_dodecet, encode_dodecet, vector48_encode, vector48_decode,
+    A2Point,
+    covering_radius,
+    decode_dodecet,
+    encode_dodecet,
     is_consistent,
+    is_safe,
+    snap,
+    vector48_decode,
+    vector48_encode,
 )
 
 

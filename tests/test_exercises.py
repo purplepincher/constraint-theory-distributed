@@ -14,7 +14,6 @@ from constraint_theory_core.exercises import (
     generate_exercise,
 )
 
-
 # ---------------------------------------------------------------------------
 # Parameterised smoke test — every (topic, difficulty) pair
 # ---------------------------------------------------------------------------

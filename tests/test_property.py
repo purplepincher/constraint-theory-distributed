@@ -9,41 +9,34 @@ from __future__ import annotations
 import math
 
 import pytest
-from hypothesis import given, assume, settings, HealthCheck
+from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
-from constraint_theory_core.lattice import (
-    A2Point,
-    snap,
-    covering_radius,
-    is_safe,
-    norm_sq,
-    decode_dodecet,
-    encode_dodecet,
-    vector48_encode,
-    vector48_decode,
-    holonomy_product,
-    is_consistent,
-    COVERING_RADIUS,
-    SAFE_THRESHOLD,
-    DODECET_DIRECTIONS,
-    DIRECTION_COUNT,
-)
-from constraint_theory_core.rigidity import (
-    is_laman,
-    henneberg_construct,
-    algebraic_connectivity,
-    optimal_coupling,
-)
 from constraint_theory_core.holonomy import (
     cycle_holonomy,
-    verify_consistency,
-    isolate_fault,
     fault_boundaries,
+    isolate_fault,
 )
-from constraint_theory_core.temporal import TemporalAgent, FunnelPhase
+from constraint_theory_core.lattice import (
+    DIRECTION_COUNT,
+    A2Point,
+    covering_radius,
+    decode_dodecet,
+    encode_dodecet,
+    holonomy_product,
+    is_consistent,
+    snap,
+    vector48_decode,
+    vector48_encode,
+)
 from constraint_theory_core.metronome import Metronome
-
+from constraint_theory_core.rigidity import (
+    algebraic_connectivity,
+    henneberg_construct,
+    is_laman,
+    optimal_coupling,
+)
+from constraint_theory_core.temporal import TemporalAgent
 
 # ---------------------------------------------------------------------------
 # Strategies
@@ -133,7 +126,7 @@ class TestA2PointProperties:
 
     @given(p=a2_point)
     def test_double_neg(self, p):
-        assert -(-p) == p
+        assert -(-p) == p  # noqa: B002 -- double unary negation, not the C-style `--` decrement
 
     @given(p=a2_point)
     def test_norm_sq_non_negative(self, p):

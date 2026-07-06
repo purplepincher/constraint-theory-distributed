@@ -21,7 +21,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import List, Tuple
 
 # ---------------------------------------------------------------------------
 # Constants (derived from first principles)
@@ -46,7 +45,7 @@ SAFE_THRESHOLD: float = COVERING_RADIUS / 2.0
 # Dodecet encoding (12 nearest-neighbor directions on A₂)
 # ---------------------------------------------------------------------------
 
-DODECET_DIRECTIONS: List[Tuple[int, int]] = [
+DODECET_DIRECTIONS: list[tuple[int, int]] = [
     (1, 0), (0, 1), (-1, 1), (-1, 0), (0, -1), (1, -1),
     (2, -1), (1, -2), (-1, -1), (-2, 1), (-1, 2), (1, 1),
 ]
@@ -96,7 +95,7 @@ class A2Point:
         """
         return self.a * self.a - self.a * self.b + self.b * self.b
 
-    def to_complex(self) -> Tuple[float, float]:
+    def to_complex(self) -> tuple[float, float]:
         """Convert to Cartesian (x, y) in the complex plane."""
         x = self.a + self.b * OMEGA_RE
         y = self.b * OMEGA_IM
@@ -107,7 +106,7 @@ class A2Point:
 # Core operations
 # ---------------------------------------------------------------------------
 
-def snap(x: float, y: float) -> Tuple[A2Point, float]:
+def snap(x: float, y: float) -> tuple[A2Point, float]:
     """Snap a point (x, y) to the nearest A₂ lattice point.
 
     Parameters
@@ -171,7 +170,7 @@ def snap(x: float, y: float) -> Tuple[A2Point, float]:
     return (best, best_err)
 
 
-def soft_snap(x: float, y: float, epsilon: float = 0.0) -> Tuple[Tuple[float, float], float, A2Point]:
+def soft_snap(x: float, y: float, epsilon: float = 0.0) -> tuple[tuple[float, float], float, A2Point]:
     """Snap with continuous softness control via ε-interpolation.
 
     Interpolates between the original point (ε=1, free) and the
@@ -359,7 +358,7 @@ def vector48_decode(index: int) -> float:
     return index * 2.0 * math.pi / DIRECTION_COUNT
 
 
-def holonomy_product(directions: List[int]) -> int:
+def holonomy_product(directions: list[int]) -> int:
     """Compute holonomy around a cycle of directions.
 
     The holonomy is the sum of direction vectors modulo 48.
@@ -384,7 +383,7 @@ def holonomy_product(directions: List[int]) -> int:
     return sum(directions) % DIRECTION_COUNT
 
 
-def is_consistent(directions: List[int]) -> bool:
+def is_consistent(directions: list[int]) -> bool:
     """Check if a cycle of directions is holonomy-free (consistent).
 
     Parameters

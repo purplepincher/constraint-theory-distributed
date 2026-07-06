@@ -7,7 +7,10 @@ distributed consensus — minimal bandwidth, maximum connectivity.
 """
 
 from constraint_theory_core.rigidity import (
-    is_laman, henneberg_construct, algebraic_connectivity, optimal_coupling,
+    algebraic_connectivity,
+    henneberg_construct,
+    is_laman,
+    optimal_coupling,
 )
 
 
@@ -39,16 +42,16 @@ def main():
     # -- Algebraic connectivity --
     lam2 = algebraic_connectivity(edges, n)
     print(f"Algebraic connectivity λ₂ = {lam2:.4f}")
-    print(f"  (λ₂ > 0 means the graph is connected)")
+    print("  (λ₂ > 0 means the graph is connected)")
     print()
 
     # -- Optimal coupling --
     alpha = optimal_coupling(edges, n)
     print(f"Optimal coupling α* = {alpha:.4f}")
-    print(f"  (This is the metronome's correction strength)")
-    print(f"  Too small → slow convergence")
-    print(f"  Too large → overshoot/oscillation")
-    print(f"  α* → fastest convergence without oscillation")
+    print("  (This is the metronome's correction strength)")
+    print("  Too small → slow convergence")
+    print("  Too large → overshoot/oscillation")
+    print("  α* → fastest convergence without oscillation")
     print()
 
     # -- Verify Laman conditions --

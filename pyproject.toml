@@ -36,10 +36,15 @@ testpaths = ["tests"]
 
 [tool.ruff]
 target-version = "py310"
-line-length = 100
+line-length = 120
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# Curated exercise/rubric data literals read better as one line per entry
+# than wrapped across several.
+"constraint_theory_core/exercises.py" = ["E501"]
 
 [tool.setuptools.packages.find]
 where = ["."]

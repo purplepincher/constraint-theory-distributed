@@ -2,36 +2,28 @@
 
 from __future__ import annotations
 
-import math
-
 import pytest
 
-from constraint_theory_core.lattice import (
-    A2Point,
-    snap,
-    covering_radius,
-    is_safe,
-    norm_sq,
-    holonomy_product,
-    is_consistent,
-    DIRECTION_COUNT,
+from constraint_theory_core.exercises import generate_exercise
+from constraint_theory_core.holonomy import (
+    fault_boundaries,
+    isolate_fault,
+    verify_consistency,
 )
+from constraint_theory_core.lattice import (
+    DIRECTION_COUNT,
+    A2Point,
+    covering_radius,
+    snap,
+)
+from constraint_theory_core.metronome import Metronome
 from constraint_theory_core.rigidity import (
-    is_laman,
-    henneberg_construct,
     algebraic_connectivity,
+    henneberg_construct,
+    is_laman,
     optimal_coupling,
 )
-from constraint_theory_core.holonomy import (
-    cycle_holonomy,
-    verify_consistency,
-    isolate_fault,
-    fault_boundaries,
-)
-from constraint_theory_core.temporal import TemporalAgent, FunnelPhase
-from constraint_theory_core.metronome import Metronome
-from constraint_theory_core.exercises import generate_exercise
-
+from constraint_theory_core.temporal import FunnelPhase, TemporalAgent
 
 # ===================================================================
 # Workflow 1: Lattice → Rigidity → Consensus
@@ -213,7 +205,7 @@ class TestExerciseWorkflow:
 
     def test_all_topics_produce_valid_exercises(self):
         """Every (topic, difficulty) combination produces a valid exercise."""
-        from constraint_theory_core.exercises import TOPICS, DIFFICULTIES
+        from constraint_theory_core.exercises import DIFFICULTIES, TOPICS
 
         for topic in TOPICS:
             for difficulty in DIFFICULTIES:
@@ -258,7 +250,7 @@ class TestCrossModuleInvariants:
             positions[i] = A2Point(i * 3, i * 2)
 
         # Verify all positions are valid lattice points
-        for i, pt in positions.items():
+        for _i, pt in positions.items():
             assert isinstance(pt.a, int)
             assert isinstance(pt.b, int)
 

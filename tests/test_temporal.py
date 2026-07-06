@@ -1,8 +1,10 @@
 """Tests for constraint_theory_core.temporal — deadband funnel."""
 
 import math
+
 import pytest
-from constraint_theory_core.temporal import TemporalAgent, FunnelPhase
+
+from constraint_theory_core.temporal import FunnelPhase, TemporalAgent
 
 
 class TestTemporalAgent:

@@ -6,6 +6,7 @@ with neighbors, and correct toward consensus using optimal coupling α*.
 """
 
 import math
+
 from constraint_theory_core import Metronome, henneberg_construct
 
 

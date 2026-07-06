@@ -25,8 +25,8 @@ holonomy_epsilon : float
 
 from __future__ import annotations
 
-from dataclasses import dataclass, asdict
-from typing import Any, Dict
+from dataclasses import asdict, dataclass
+from typing import Any
 
 
 @dataclass(frozen=True, slots=True)
@@ -56,7 +56,7 @@ class GenreEpsilons:
             if not 0.0 <= float(val) <= 1.0:
                 raise ValueError(f"{field_name} must be in [0, 1], got {val}")
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
     def overall(self) -> float:
@@ -74,7 +74,7 @@ class GenreEpsilons:
 # Built-in genre profiles
 # ---------------------------------------------------------------------------
 
-GENRES: Dict[str, GenreEpsilons] = {
+GENRES: dict[str, GenreEpsilons] = {
     "serialism": GenreEpsilons(
         lattice_epsilon=0.0,
         temporal_softness=0.0,
@@ -173,7 +173,7 @@ def get_genre(name: str) -> GenreEpsilons:
     return GENRES[key]
 
 
-def list_genres() -> Dict[str, GenreEpsilons]:
+def list_genres() -> dict[str, GenreEpsilons]:
     """Return all built-in genre profiles."""
     return dict(GENRES)
 

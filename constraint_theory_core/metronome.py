@@ -16,12 +16,10 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
 
 from .lattice import A2Point
 from .rigidity import optimal_coupling
-from .temporal import TemporalAgent, FunnelPhase
-
+from .temporal import FunnelPhase, TemporalAgent
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -102,8 +100,8 @@ class Metronome:  # pylint: disable=too-many-instance-attributes
         phi0: float = 0.0,
         epsilon: float = 0.577,
         delta: float = 0.577,
-        neighbors: Optional[List[int]] = None,
-        edges: Optional[List[Tuple[int, int]]] = None,
+        neighbors: list[int] | None = None,
+        edges: list[tuple[int, int]] | None = None,
         n_agents: int = 1,
         softness: float = 0.0,
     ) -> None:
@@ -128,7 +126,7 @@ class Metronome:  # pylint: disable=too-many-instance-attributes
         self._t: float = 0.0
         self._tick_count: int = 0
         self._converged: bool = False
-        self._corrections: List[float] = []
+        self._corrections: list[float] = []
         self._temporal = TemporalAgent(
             decay_rate=1.0 / self.T if self.T > 0 else 1.0,
             epsilon_0=self.epsilon,
@@ -161,7 +159,7 @@ class Metronome:  # pylint: disable=too-many-instance-attributes
         return self._converged
 
     @property
-    def corrections(self) -> List[float]:
+    def corrections(self) -> list[float]:
         """History of applied correction magnitudes."""
         return self._corrections.copy()
 
@@ -208,7 +206,7 @@ class Metronome:  # pylint: disable=too-many-instance-attributes
         effective_epsilon = self._temporal.epsilon * (1.0 + self.softness)
         return diff <= effective_epsilon
 
-    def correct(self, neighbor_phases: List[float]) -> float:
+    def correct(self, neighbor_phases: list[float]) -> float:
         """Apply Laman-neighbor correction.
 
         Computes the circular mean of neighbor phases and nudges the
@@ -297,7 +295,7 @@ class Metronome:  # pylint: disable=too-many-instance-attributes
 # Internal helpers
 # ---------------------------------------------------------------------------
 
-def _circular_mean(angles: List[float]) -> float:
+def _circular_mean(angles: list[float]) -> float:
     """Compute circular mean of angles in radians."""
     if not angles:
         return 0.0

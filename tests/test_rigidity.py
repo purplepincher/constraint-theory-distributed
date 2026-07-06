@@ -1,8 +1,12 @@
 """Tests for constraint_theory_core.rigidity — Laman graph operations."""
 
 import pytest
+
 from constraint_theory_core.rigidity import (
-    is_laman, henneberg_construct, algebraic_connectivity, optimal_coupling,
+    algebraic_connectivity,
+    henneberg_construct,
+    is_laman,
+    optimal_coupling,
 )
 
 

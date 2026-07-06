@@ -1,11 +1,12 @@
 """Tests for constraint_theory_core.holonomy — cycle consistency."""
 
 import pytest
+
 from constraint_theory_core.holonomy import (
     cycle_holonomy,
-    verify_consistency,
-    isolate_fault,
     fault_boundaries,
+    isolate_fault,
+    verify_consistency,
 )
 
 # Consistent direction: sum ≡ 0 mod 48

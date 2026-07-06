@@ -24,9 +24,8 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
 
-from .lattice import snap, soft_snap
+from .lattice import snap
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -139,7 +138,7 @@ class TemporalAgent:
         self.delta = delta
         self.softness = softness
         self._epsilon = epsilon_0
-        self._last_t: Optional[float] = None
+        self._last_t: float | None = None
         self._last_error: float = 0.0
         self._anomalies: int = 0
 

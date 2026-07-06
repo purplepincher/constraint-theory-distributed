@@ -7,22 +7,19 @@ from __future__ import annotations
 
 import math
 
-import pytest
-
-from constraint_theory_core.lattice import snap, A2Point, norm_sq
-from constraint_theory_core.rigidity import (
-    is_laman,
-    henneberg_construct,
-    algebraic_connectivity,
-)
 from constraint_theory_core.holonomy import (
     cycle_holonomy,
-    verify_consistency,
     isolate_fault,
+    verify_consistency,
+)
+from constraint_theory_core.lattice import snap
+from constraint_theory_core.metronome import Metronome
+from constraint_theory_core.rigidity import (
+    algebraic_connectivity,
+    henneberg_construct,
+    is_laman,
 )
 from constraint_theory_core.temporal import TemporalAgent
-from constraint_theory_core.metronome import Metronome
-
 
 # ---------------------------------------------------------------------------
 # Snap benchmarks
@@ -133,6 +130,5 @@ class TestMetronomeBenchmark:
 
     def test_temporal_observe(self, benchmark):
         agent = TemporalAgent(decay_rate=0.5, epsilon_0=0.6, delta=1.0)
-        t = 1.0
         agent.observe(0.0, 0.0, t=0.0)
         benchmark(lambda: agent.observe(0.1, 0.2, t=1.0))

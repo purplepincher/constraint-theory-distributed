@@ -6,20 +6,28 @@ import math
 
 import pytest
 
-from constraint_theory_core.lattice import (
-    A2Point, snap, covering_radius, is_safe, norm_sq,
-    decode_dodecet, encode_dodecet, vector48_encode, vector48_decode,
-    holonomy_product, is_consistent,
-)
-from constraint_theory_core.rigidity import (
-    is_laman, henneberg_construct, algebraic_connectivity, optimal_coupling,
-)
 from constraint_theory_core.holonomy import (
-    cycle_holonomy, verify_consistency, isolate_fault, fault_boundaries,
+    cycle_holonomy,
+    fault_boundaries,
+    verify_consistency,
 )
-from constraint_theory_core.temporal import TemporalAgent, FunnelPhase
+from constraint_theory_core.lattice import (
+    A2Point,
+    covering_radius,
+    decode_dodecet,
+    encode_dodecet,
+    snap,
+    vector48_decode,
+    vector48_encode,
+)
 from constraint_theory_core.metronome import Metronome
-
+from constraint_theory_core.rigidity import (
+    algebraic_connectivity,
+    henneberg_construct,
+    is_laman,
+    optimal_coupling,
+)
+from constraint_theory_core.temporal import FunnelPhase, TemporalAgent
 
 # ===================================================================
 # Lattice edge cases
@@ -220,7 +228,7 @@ class TestTemporalEdgeCases:
 
     def test_first_observation_no_decay(self):
         agent = TemporalAgent(decay_rate=1.0, epsilon_0=0.5)
-        result = agent.observe(0.0, 0.0, t=0.0)
+        agent.observe(0.0, 0.0, t=0.0)
         # No decay on first observation (no previous time)
         assert agent.epsilon == pytest.approx(0.5)
 

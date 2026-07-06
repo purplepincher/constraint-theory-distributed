@@ -6,15 +6,21 @@ This is the unified constraint theory architecture in action.
 """
 
 import math
+
 from constraint_theory_core import (
-    snap, covering_radius, is_safe,
     Metronome,
-    henneberg_construct, is_laman, algebraic_connectivity, optimal_coupling,
+    algebraic_connectivity,
+    covering_radius,
+    henneberg_construct,
+    is_laman,
+    is_safe,
+    optimal_coupling,
+    snap,
 )
 from constraint_theory_core.holonomy import (
-    cycle_holonomy, verify_consistency, fault_boundaries,
+    fault_boundaries,
+    verify_consistency,
 )
-from constraint_theory_core.temporal import FunnelPhase
 
 
 def neighbors_of(edges, i):
@@ -92,7 +98,7 @@ def main():
     print(f"  Initial phase spread: {initial_spread:.4f}")
 
     # Run consensus
-    for tick in range(1, 51):
+    for _tick in range(1, 51):
         for a in agents:
             a.tick()
         phases = [a.phase for a in agents]

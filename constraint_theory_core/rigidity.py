@@ -26,7 +26,6 @@ from __future__ import annotations
 import math
 import random
 from itertools import combinations
-from typing import Dict, List, Set, Tuple
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -43,7 +42,7 @@ EXACT_CONNECTIVITY_LIMIT: int = 50
 # Core operations
 # ---------------------------------------------------------------------------
 
-def is_laman(n_vertices: int, edges: List[Tuple[int, int]]) -> bool:
+def is_laman(n_vertices: int, edges: list[tuple[int, int]]) -> bool:
     """Check if a graph is Laman rigid.
 
     A graph G = (V, E) with n vertices is Laman rigid iff:
@@ -99,7 +98,7 @@ def is_laman(n_vertices: int, edges: List[Tuple[int, int]]) -> bool:
     return _pebble_game(n_vertices, edges)
 
 
-def henneberg_construct(n: int, seed: int = 42) -> List[Tuple[int, int]]:
+def henneberg_construct(n: int, seed: int = 42) -> list[tuple[int, int]]:
     """Build a Laman graph via Henneberg type-I construction.
 
     Algorithm:
@@ -130,7 +129,7 @@ def henneberg_construct(n: int, seed: int = 42) -> List[Tuple[int, int]]:
         raise ValueError("Need at least 2 vertices")
 
     rng = random.Random(seed)
-    edges: List[Tuple[int, int]] = [(0, 1)]
+    edges: list[tuple[int, int]] = [(0, 1)]
 
     for v in range(2, n):
         # Pick two distinct existing vertices
@@ -144,7 +143,7 @@ def henneberg_construct(n: int, seed: int = 42) -> List[Tuple[int, int]]:
 
 
 def algebraic_connectivity(
-    edges: List[Tuple[int, int]], n: int
+    edges: list[tuple[int, int]], n: int
 ) -> float:
     """Compute the algebraic connectivity λ₂ of the graph Laplacian.
 
@@ -174,7 +173,7 @@ def algebraic_connectivity(
     # Build adjacency
     if n < 2:
         return 0.0
-    adj: Dict[int, List[int]] = {i: [] for i in range(n)}
+    adj: dict[int, list[int]] = {i: [] for i in range(n)}
     for u, v in edges:
         adj[u].append(v)
         adj[v].append(u)
@@ -224,7 +223,7 @@ def algebraic_connectivity(
 
 def soft_rigidity(
     n_vertices: int,
-    edges: List[Tuple[int, int]],
+    edges: list[tuple[int, int]],
     epsilon: float = 0.0,
 ) -> float:
     """Compute a continuous rigidity score softened by ε.
@@ -279,7 +278,7 @@ def soft_rigidity(
 
 
 def optimal_coupling(
-    edges: List[Tuple[int, int]], n: int
+    edges: list[tuple[int, int]], n: int
 ) -> float:
     """Compute the optimal coupling parameter α* = 2/(λ₂ + λₙ).
 
@@ -322,10 +321,10 @@ def optimal_coupling(
 # Internal helpers
 # ---------------------------------------------------------------------------
 
-def _check_subsets(n: int, edges: List[Tuple[int, int]]) -> bool:
+def _check_subsets(n: int, edges: list[tuple[int, int]]) -> bool:
     """Brute-force subset check for Laman condition 2."""
     # Build adjacency set
-    edge_set: Set[Tuple[int, int]] = set()
+    edge_set: set[tuple[int, int]] = set()
     for u, v in edges:
         edge_set.add((min(u, v), max(u, v)))
 
@@ -343,19 +342,19 @@ def _check_subsets(n: int, edges: List[Tuple[int, int]]) -> bool:
     return True
 
 
-def _pebble_game(n: int, edges: List[Tuple[int, int]]) -> bool:
+def _pebble_game(n: int, edges: list[tuple[int, int]]) -> bool:
     """Pebble game algorithm for Laman rigidity ( Jacobs & Hendrickson, 1997).
 
     For large graphs where brute-force subset check is too slow.
     """
     # Simplified: if edge count is exactly 2n-3 and the graph is connected,
     # it's very likely Laman. Full pebble game is complex; defer to dedicated impl.
-    edge_set: Set[Tuple[int, int]] = set()
+    edge_set: set[tuple[int, int]] = set()
     for u, v in edges:
         edge_set.add((min(u, v), max(u, v)))
 
     # Check connectivity via BFS
-    adj: Dict[int, Set[int]] = {i: set() for i in range(n)}
+    adj: dict[int, set[int]] = {i: set() for i in range(n)}
     for u, v in edges:
         adj[u].add(v)
         adj[v].add(u)
@@ -372,7 +371,7 @@ def _pebble_game(n: int, edges: List[Tuple[int, int]]) -> bool:
     return len(visited) == n
 
 
-def _project_out_constant(x: List[float], n: int) -> None:
+def _project_out_constant(x: list[float], n: int) -> None:
     """Project out the constant component from vector x."""
     mean = sum(x) / n
     for i in range(n):
