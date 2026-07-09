@@ -6,56 +6,39 @@
 > this is real, separately-authored work that doesn't belong mixed into
 > that repo's history. Full commit history preserved on extraction.
 
-Unified mathematical library for constraint theory — Eisenstein lattices, deadband funnels, Laman rigidity, distributed consensus, and holonomy verification. Five composable modules. 308 tests (83 core + property/edge-case/benchmark suites). Zero external dependencies.
+A pure-Python library of geometric and algebraic primitives for constraint-theoretic problems: Eisenstein A₂ lattice quantization, narrowing deadband funnels, Laman (minimally rigid) graph topology, oscillator-based distributed consensus, and cycle-consistency (holonomy) verification. No runtime dependencies; the only third-party packages are test/dev tooling (pytest, hypothesis, ruff, pytest-benchmark).
 
-## What It Does
+## What It Is
 
-Every distributed system has constraints: agents must agree on time, sensors must stay within tolerance, and the communication graph must carry enough information without waste. This package provides the mathematical primitives that make those constraints precise and provable.
+The library addresses a set of recurring constraint problems: quantizing continuous values to a discrete lattice with a bounded error guarantee, narrowing an acceptance band over time so drift either vanishes or trips an anomaly, choosing a communication graph that is minimally rigid (every edge load-bearing), driving coupled agents toward consensus, and verifying that cycles of directed quantities close exactly. It provides the mathematical primitives that make those constraints precise and checkable.
 
-The five modules compose into a unified architecture:
+Five mathematical modules form the core, plus two application-level modules:
 
-- **Lattice** quantizes continuous space onto the Eisenstein A₂ lattice — every point is within ρ = 1/√3 of a lattice point, guaranteed by geometry.
-- **Temporal** wraps that quantization in a narrowing deadband funnel — ε(t) = ε₀ · e^(−λt) — so drift converges to zero or triggers an anomaly.
-- **Rigidity** ensures the communication graph is minimally rigid (Laman) — exactly 2n−3 edges, every edge load-bearing, no waste.
-- **Metronome** drives distributed consensus across Laman-connected agents — tick, agree, correct with optimal coupling α* = 2/(λ₂ + λₙ).
-- **Holonomy** verifies cycle consistency in tiled constraint systems — detects and isolates faults in O(log N) via binary bisection.
+- **Lattice** quantizes a point in the plane onto the Eisenstein A₂ lattice. Every point is within ρ = 1/√3 ≈ 0.577 of a lattice point, guaranteed by geometry.
+- **Temporal** wraps that quantization in a narrowing deadband funnel — ε(t) = ε₀ · e^(−λt) — so error either converges below the band or trips an anomaly that resets it.
+- **Rigidity** builds and checks Laman graphs — exactly 2n−3 edges, with every edge load-bearing and no redundancy.
+- **Metronome** runs distributed consensus across agents connected by a Laman graph, correcting phase with coupling α* = 2/(λ₂ + λₙ).
+- **Holonomy** verifies that cycles of 48-direction quantities close exactly (sum ≡ 0 mod 48), and locates a fault via binary bisection.
 
-## Architecture
+The two application modules sit on top of the core:
 
-```
-                    ┌─────────────┐
-                    │   Lattice   │
-                    │  (Eisenstein │
-                    │    A₂ snap)  │
-                    └──────┬──────┘
-                           │
-              ┌────────────┼────────────┐
-              │            │            │
-       ┌──────▼──────┐    │    ┌───────▼───────┐
-       │   Temporal   │    │    │   Holonomy    │
-       │  (deadband   │    │    │  (cycle verify)│
-       │   funnel)    │    │    └───────┬───────┘
-       └──────┬──────┘    │            │
-              │           │            │
-       ┌──────▼───────────▼──┐  ┌─────▼─────────┐
-       │     Metronome       │  │   Rigidity    │
-       │  (distributed       │  │  (Laman graph) │
-       │   consensus)        │  └───────┬───────┘
-       └──────────┬──────────┘          │
-                  │                     │
-                  └──────┬──────────────┘
-                         │
-                  optimal coupling α*
-```
+- **Genre Brain** maps a named style (serialism, jazz, ambient, …) to a per-constraint "softness" profile — five ε values that parameterize how strictly each core module enforces its constraint. This is the bridge from a named intent to the library's parameters.
+- **Exercises** generates constrained-composition exercises (species counterpoint, voice leading, harmonic and rhythmic constraints) with starting notes, constraints, solutions, and scoring rubrics, for classroom use.
 
-**Compositions:**
-- **Lattice + Temporal = bounded drift** — snap to lattice, then narrow the deadband over time.
-- **Rigidity + Holonomy = zero-comm consensus** — Laman topology ensures minimal edges; holonomy verifies every cycle closes.
-- **All five = full metronome** — agents snap to lattice, narrow via temporal, couple via Laman rigidity, agree via metronome, verify via holonomy.
+## How the modules relate
+
+The package is not a single integrated pipeline; modules are imported where one genuinely needs another. The actual dependencies:
+
+- **Temporal depends on Lattice** — `TemporalAgent.observe()` snaps each observation to the A₂ lattice, then applies the deadband.
+- **Metronome depends on Lattice, Rigidity, and Temporal** — it computes α* via Rigidity's Laplacian, drives a phase via a TemporalAgent, and maps snapped lattice points to phase angles.
+- **Holonomy depends on Lattice** only for the direction count (48); it is otherwise a standalone verifier.
+- **Rigidity, Exercises, and Genre Brain are standalone** — they import no other module. Genre Brain's outputs are not wired in automatically; they parameterize the softness/ε of the core modules when you pass them in.
+
+So a working composition that exists in code is: snap with Lattice, narrow the band with Temporal, and couple agents with Metronome over a Laman graph. Holonomy is a separate verification layer applied to cycles; it is not part of the consensus loop.
 
 ## Installation
 
-Not yet published to PyPI. Install from source:
+Not published to PyPI. Install from source:
 
 ```bash
 git clone https://github.com/purplepincher/constraint-theory-distributed.git
@@ -63,7 +46,7 @@ cd constraint-theory-distributed
 pip install -e .
 ```
 
-Requires Python ≥ 3.10. No external dependencies.
+Requires Python ≥ 3.10. No runtime dependencies (all imports are standard library). Test/dev extras: `pytest`, `hypothesis`, `ruff`, `pytest-benchmark`.
 
 ## Quick Start
 
@@ -166,11 +149,13 @@ print(f"All faults: {fault_boundaries(tiles)}")          # [2]
 
 | Module | What | Key Functions |
 |--------|------|---------------|
-| `lattice` | Eisenstein A₂ lattice | `snap`, `covering_radius`, `is_safe`, `A2Point`, `encode_dodecet`, `vector48_encode` |
+| `lattice` | Eisenstein A₂ lattice | `snap`, `soft_snap`, `covering_radius`, `is_safe`, `norm_sq`, `A2Point`, `encode_dodecet`, `decode_dodecet`, `vector48_encode`, `vector48_decode`, `holonomy_product` |
 | `temporal` | Deadband funnel | `TemporalAgent`, `FunnelPhase`, `FunnelResult` |
-| `rigidity` | Laman graph topology | `is_laman`, `henneberg_construct`, `algebraic_connectivity`, `optimal_coupling` |
+| `rigidity` | Laman graph topology | `is_laman`, `henneberg_construct`, `algebraic_connectivity`, `optimal_coupling`, `soft_rigidity` |
 | `metronome` | Distributed consensus | `Metronome`, `MetronomeState` |
-| `holonomy` | Cycle verification | `cycle_holonomy`, `verify_consistency`, `isolate_fault`, `fault_boundaries` |
+| `holonomy` | Cycle verification | `cycle_holonomy`, `verify_consistency`, `soft_verify_consistency`, `isolate_fault`, `fault_boundaries` |
+| `genre_brain` | Named-style → softness profiles | `GenreEpsilons`, `get_genre`, `list_genres`, `custom_genre`, `sweep_genre` |
+| `exercises` | Constrained-composition exercise generator | `generate_exercise` |
 
 ## Equations
 
@@ -185,6 +170,14 @@ print(f"All faults: {fault_boundaries(tiles)}")          # [2]
 | Optimal coupling | α* = 2/(λ₂ + λₙ) | Fastest convergence without oscillation |
 | Holonomy | Σ directions mod 48 | 0 means cycle closes exactly |
 
+## Limitations & scope
+
+- **α\* is an estimate, not exact.** `optimal_coupling` computes λ₂ by power iteration, but λₙ (the largest Laplacian eigenvalue) is approximated as `max_degree + 1` rather than computed exactly. The formula α\* = 2/(λ₂ + λₙ) is correct; the λₙ used in it is an approximation. For exact small-graph eigenvalues, use a dedicated linear-algebra backend.
+- **`isolate_fault` finds one fault, not all.** It locates *an* inconsistent tile via binary bisection in O(log N) checks. To enumerate every inconsistent tile, use `fault_boundaries`, which is an O(N) scan.
+- **Laman checking for large graphs is approximate.** `is_laman` brute-forces the subset condition for n ≤ 15 and falls back to a connectivity-based pebble-game approximation for larger graphs, rather than the full pebble game.
+- **Genre/exercise modules are application-level.** Their parameters are not wired into the core modules automatically; you pass the softness/ε values through. They reflect the library's origin in musical constraint theory.
+- **`soft_*` variants.** Several modules expose `soft_snap`, `soft_rigidity`, `soft_verify_consistency` — continuous ε-interpolations between a hard decision (ε=0) and a fully relaxed one (ε=1). These are the knobs Genre Brain's profiles are meant to drive.
+
 ## Testing
 
 ```bash
@@ -192,6 +185,8 @@ pip install -e ".[dev]"
 pytest                          # 308 tests (83 core + property/edge-case/benchmark suites)
 pytest -v --tb=short            # verbose
 ```
+
+The 308 figure is the collected item count: 264 test functions, of which 4 are parametrized over the 4 topics × 3 difficulties in `exercises` (expanding to 48 items). "83 core" is the sum of the five per-module test files (`test_lattice` + `test_temporal` + `test_rigidity` + `test_metronome` + `test_holonomy`).
 
 ## Documentation
 
@@ -202,7 +197,7 @@ pytest -v --tb=short            # verbose
 ## Related Projects
 
 - [flux-tensor-midi](https://github.com/SuperInstance/flux-tensor-midi) — Musical constraint theory
-- [plato](https://github.com/SuperInstance/plato) — PLATO tiling architecture
+- [plato](https://github.com/SuperInstance/plato) — PLATO tiling architecture (referenced by the holonomy module)
 - [forgemaster](https://github.com/SuperInstance/forgemaster) — Constraint-theory specialist agent
 
 ## License
